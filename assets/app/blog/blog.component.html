@@ -1,0 +1,22 @@
+<div class="showWhenLoaded" style="opacity: 0;">
+    <!-- INTRO -->
+    <div class="intro jIntro">
+        <div id="slides">
+            <div class="image-cover menu-bottom" style="background-image:url(/img/blog/header.jpg);"></div>
+        </div>
+        <div class="vcenter text-center">
+            <div class="container">
+                <div class="col-md-8 col-md-offset-2">
+                <h1 class="primary-title invert">The Ronin Dev Blog <strong>OUR THOUGHTS</strong></h1>
+                    <div class="voffset50"></div>
+                    <p class="post-primary-title invert">observations and trends from experiences in the valley</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <section class="section">
+        <div class="container container-full">
+            <summary-component [post]="post" [index]="posts.length - i - 1" *ngFor="let post of posts; let i = index"></summary-component>
+        </div>
+    </section>
+</div>

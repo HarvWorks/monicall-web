@@ -1,0 +1,67 @@
+<div class="thumbnails work5">
+    <div class="grid-sizer"></div>
+    <div class="thumbnail post-248 rebirth-works type-rebirth-works status-publish has-post-thumbnail hentry rebirth-type-back">
+        <div class="company_logos">
+            <img width="900" height="864" src="/img/companies/DSWhiteonBlue.png" class="attachment-rebirth_jellythemes_project_thumb size-rebirth_jellythemes_project_thumb" alt="" />
+        </div>
+    </div>
+    <div (click)="openModal('EchoFine')" class="thumbnail post-247 rebirth-works type-rebirth-works status-publish has-post-thumbnail hentry rebirth-type-design">
+        <div class="company_logos">
+            <img width="900" height="864" src="/img/companies/Echo-Fine-Properties-logo-white.png" class="attachment-rebirth_jellythemes_project_thumb size-rebirth_jellythemes_project_thumb" alt="" />
+        </div>
+    </div>
+    <div (click)="openModal('Limelight')" class="thumbnail post-246 rebirth-works type-rebirth-works status-publish has-post-thumbnail hentry rebirth-type-salesforce">
+        <div class="company_logos">
+            <img width="900" height="864" src="/img/companies/LimelightLogoBug.png" class="attachment-rebirth_jellythemes_project_thumb size-rebirth_jellythemes_project_thumb" alt="" />
+        </div>
+    </div>
+    <div (click)="openModal('Veidt')" class="thumbnail post-245 rebirth-works type-rebirth-works status-publish has-post-thumbnail hentry rebirth-type-front">
+        <div class="company_logos">
+            <img width="900" height="864" src="/img/companies/veidt.png" class="attachment-rebirth_jellythemes_project_thumb size-rebirth_jellythemes_project_thumb" alt="" />
+        </div>
+    </div>
+    <div (click)="openModal('Evergreen')" class="thumbnail post-252 rebirth-works type-rebirth-works status-publish has-post-thumbnail hentry rebirth-type-back">
+        <div class="company_logos">
+            <img width="900" height="864" src="/img/companies/logo_final.png" class="attachment-rebirth_jellythemes_project_thumb size-rebirth_jellythemes_project_thumb" alt="" />
+        </div>
+    </div>
+    <div (click)="openModal('Techbridge')" class="thumbnail post-249 rebirth-works type-rebirth-works status-publish has-post-thumbnail hentry rebirth-type-front">
+        <div class="company_logos">
+            <img width="900" height="864" src="/img/companies/techbridge.png" class="attachment-rebirth_jellythemes_project_thumb size-rebirth_jellythemes_project_thumb" alt="" />
+        </div>
+    </div>
+    <div (click)="openModal('uVu')" class="thumbnail post-243 rebirth-works type-rebirth-works status-publish has-post-thumbnail hentry rebirth-type-design rebirth-type-front">
+        <div class="company_logos">
+            <img width="900" height="864" src="/img/companies/uvu_app_logo.png" class="attachment-rebirth_jellythemes_project_thumb size-rebirth_jellythemes_project_thumb" alt="" />
+        </div>
+    </div>
+    <div (click)="openModal('Catch')" class="thumbnail post-242 rebirth-works type-rebirth-works status-publish has-post-thumbnail hentry rebirth-type-front">
+        <div class="company_logos">
+            <img width="900" height="864" src="/img/companies/logo.jpg" class="attachment-rebirth_jellythemes_project_thumb size-rebirth_jellythemes_project_thumb" alt="" />
+        </div>
+    </div>
+    <div (click)="openModal('Gucci')" class="thumbnail post-242 rebirth-works type-rebirth-works status-publish has-post-thumbnail hentry rebirth-type-front">
+        <div class="company_logos">
+            <img width="900" height="864" src="/img/companies/gucci.png" class="attachment-rebirth_jellythemes_project_thumb size-rebirth_jellythemes_project_thumb" alt="" />
+        </div>
+    </div>
+    <div (click)="openModal('Neutrino')" class="thumbnail post-242 rebirth-works type-rebirth-works status-publish has-post-thumbnail hentry rebirth-type-back">
+        <div class="company_logos">
+            <img width="900" height="864" src="/img/companies/neutrino.png" class="attachment-rebirth_jellythemes_project_thumb size-rebirth_jellythemes_project_thumb" alt="" />
+        </div>
+    </div>
+    <div (click)="openModal('Teamsync')" class="thumbnail post-242 rebirth-works type-rebirth-works status-publish has-post-thumbnail hentry rebirth-type-design rebirth-type-front">
+        <div class="company_logos">
+            <img width="900" height="864" src="/img/companies/teamsynced.png" class="attachment-rebirth_jellythemes_project_thumb size-rebirth_jellythemes_project_thumb" alt="" />
+        </div>
+    </div>
+</div>
+
+<modal id="company-modal" style="display: none;">
+     <div class="modal">
+         <div class="modal-body">
+            <company-modal [images]="images" [folder]="folder" [selectedImage]="selectedImage"></company-modal>
+        </div>
+    </div>
+    <div class="modal-background"></div>
+</modal>

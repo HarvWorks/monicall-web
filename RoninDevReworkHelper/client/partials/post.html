@@ -1,0 +1,49 @@
+<div class="container">
+    <form class="form-horizontal" ng-submit="processPost()">
+        <div class="form-group">
+            <p>Type "default" for the default image, else place a desired image into the appropriate post folder and type just the name of the file and extension.  No need for pathname.</p>
+			<label class="control-label col-sm-2" for="first_name">Splash Image:</label>
+			<div class="col-sm-4">
+				<input type="text" class="form-control" name="splash_img" placeholder="Enter 'default' or a filename" ng-model = "post.splash_img">
+			</div>
+		</div>
+        <div class="form-group">
+            <p>Place a desired image into the appropriate post folder and type just the filename and extension.  No need for pathname.</p>
+			<label class="control-label col-sm-2" for="first_name">Thumbnail:</label>
+			<div class="col-sm-4">
+				<input type="text" class="form-control" name="splash_img" placeholder="Enter a filename for thumbnail" ng-model = "post.thumbnail">
+			</div>
+		</div>
+        <div class="form-group">
+			<label class="control-label col-sm-2" for="first_name">Title:</label>
+			<div class="col-sm-4">
+				<input type="text" class="form-control" name="title" placeholder="Enter a Title" ng-model = "post.title">
+			</div>
+		</div>
+        <div class="form-group">
+			<label class="control-label col-sm-2" for="summary">Summary:</label>
+			<div class="col-sm-10">
+				<textarea class="form-control" rows="8" name="summary" placeholder="Type a short summary that appears on the blog post selector page" ng-model = "post.summary"></textarea>
+			</div>
+		</div>
+        <div class="form-group">
+            <p>Type a the full blog post here inculding the html formatting you want. Include images with an image tag, it should follow the following format for the source: src= "/img/blog/{foldernumber}/img.ext"</p>
+			<label class="control-label col-sm-2" for="text">Post:</label>
+			<div class="col-sm-10">
+				<textarea class="form-control" rows="50" name="text" placeholder="Type a the full blog post here." ng-model = "post.text"></textarea>
+			</div>
+		</div>
+        <div class="form-group">
+			<div class="col-sm-offset-2 col-sm-6">
+				<select ng-model="author" ng-options="author.name for author in authors">
+                    <option value="" disabled>{{selectedWriter}}</option>
+				</select>
+			</div>
+		</div>
+        <div class="form-group">
+			<div class="col-sm-offset-2 col-sm-6">
+				<button type="submit" class="btn btn-info">Save</button>
+			</div>
+		</div>
+    </form>
+</div>

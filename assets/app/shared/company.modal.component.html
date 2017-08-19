@@ -1,0 +1,33 @@
+<i class="fa fa-times fa-2x close-icon" aria-hidden="true" (click)="closeModal()"></i>
+<div class="modal-top-div">
+    <div class="modal-picture-div">
+        <div class="modal-picture"  [ngStyle]="{'background-image': 'url(/img/clients/' + folder + '/' + selectedImage + ')', 'background-size': 'contain', 'background-position': 'center center', 'background-repeat': 'no-repeat'}">
+        </div>
+    </div>
+    <div class="modal-description-div">
+        <div class="modal-spacer-1"></div>
+        <div class="modal-title-div" *ngIf="modalText[folder]">
+            <h2 [innerHTML]="modalText[folder].Title" class="modal-title"></h2>
+        </div>
+        <div class="modal-spacer-2"></div>
+        <div class="modal-text-div" *ngIf="modalText[folder]">
+            <p [innerHTML]="modalText[folder].Text"></p>
+        </div>
+        <div class="modal-spacer-3"></div>
+        <div class="modal-tech-div">
+            <p class="modal-tech-title">Technologies used:</p>
+            <div class="modal-spacer-4"></div>
+            <div *ngIf="modalText[folder]">
+                <p *ngFor="let tech of modalText[folder].Tech" class="modal-tech-list-item">- {{tech}}</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="thumbnailContainer">
+    <div *ngFor="let image of images" class="thumbnailBackground">
+        <div class="modal-thumbnail" (click)="clickThumbnail(image)" [ngStyle]="{'background-image': 'url(/img/clients/' + folder + '/' + image + ')', 'background-size': 'cover', 'background-position': 'center center', 'background-repeat': 'no-repeat'}"></div>
+    </div>
+</div>
+<div class="mobileClose" (click)="closeModal()">
+    <h3>Close</h3>
+</div>

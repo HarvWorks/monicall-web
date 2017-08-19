@@ -1,0 +1,98 @@
+#Popup {
+    background-color: rgb(225, 225, 225);
+    font-family: 'Raleway', san-serif;
+    text-align: center;
+    border: 1px solid black;
+    border-radius: 2px;
+    padding: 10px;
+    display: none;
+    width: 80%;
+    height: 250px;
+    position: fixed;
+    top: 25%;
+    left: 10%;
+}
+
+#pop-cherry {
+    width: 8%;
+    background-color: black;
+    color: white;
+    margin-top: 2em;
+}
+
+#Popup h2 {
+    margin-top: 50px;
+}
+
+#Popup input {
+    width: 50%;
+    border-bottom: 1px solid gray;
+}
+
+#pop-exit {
+    float: right;
+}
+
+.full-width {
+    width: 100%;
+    overflow: hidden;
+}
+
+/* MODAL STYLES
+-------------------------------*/
+@media (min-height: 700px) {
+    .modal {
+        padding: 2.2%
+    }
+}
+@media (max-height: 699px) {
+    .modal {
+        padding: 15px;
+    }
+}
+
+.modal {
+    /* modal container fixed across whole screen */
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    /* z-index must be higher than .modal-background */
+    z-index: 100000;
+
+    /* enables scrolling for tall modals */
+    overflow: auto;
+    height: 100%;
+}
+
+.modal-body {
+    margin: auto;
+    background: #fff;
+    height: 100%;
+    max-width: 1920px;
+    max-height: 1200px;
+    position:relative;
+}
+
+.modal-background {
+    /* modal background fixed across whole screen */
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    /* semi-transparent black  */
+    background-color: #000;
+    opacity: 0.75;
+
+    /* z-index must be below .modal and above everything else  */
+    z-index: 99999;
+}
+
+body.modal-open {
+    /* body overflow is hidden to hide main scrollbar when modal window is open */
+    overflow: hidden;
+}

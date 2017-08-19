@@ -1,0 +1,84 @@
+<div class="container">
+	<div class="row">
+		<br>
+		<br>
+	</div>
+	<button type="button" name="button" ng-click= "newPost()">New Post</button>
+	<table class="table" ng-hide = "results.length === 0 || posts === 'err'">
+		<thead>
+			<th>
+				Title
+			</th>
+			<th>
+				Summary
+			</th>
+			<th>
+				Date Written
+			</th>
+			<th>
+				Author
+			</th>
+			<th>
+				Edit
+			</th>
+        </thead>
+        <tbody>
+
+          	<tr ng-repeat="post in posts">
+				<td>
+					{{ post.title }}
+				</td>
+				<td>
+					{{ post.summary }}
+				</td>
+				<td>
+					{{ post.created_at }}
+				</td>
+				<td>
+					{{ post.name}}
+				</td>
+				<td>
+					<button type="button" name="button" ng-click= "editPost(post.id)">Edit</button>
+				</td>
+          	</tr>
+        </tbody>
+    </table>
+	<div class="row">
+		<br>
+		<br>
+	</div>
+	<button type="button" name="button" ng-click= "newAuthor()">New Author</button>
+	<table class="table" ng-hide = "results.length === 0 || authors === 'err'">
+		<thead>
+			<th>
+				Name
+			</th>
+			<th>
+				Picture
+			</th>
+			<th>
+				Bio
+			</th>
+			<th>
+				Edit
+			</th>
+        </thead>
+        <tbody>
+
+          	<tr ng-repeat="author in authors">
+				<td>
+					{{ author.name }}
+				</td>
+				<td>
+					{{ author.picture }}
+				</td>
+				<td>
+					{{ author.bio }}
+				</td>
+				<td>
+					<button type="button" name="button" ng-click= "editAuthor(author.id)">Edit</button>
+				</td>
+          	</tr>
+        </tbody>
+    </table>
+</div>
