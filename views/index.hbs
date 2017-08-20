@@ -38,8 +38,8 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script type="text/javascript">
-        const socket = io.connect('https://react-native-webrtc.herokuapp.com', {transports: ['websocket']});
-        const textSocket = io.connect('https://anvyl.online')
+        const socket = io.connect('https://react-native-webrtc.herokuapp.com', {transports: ['websocket'], secure:true});
+        const textSocket = io.connect('https://anvyl.online',{secure:true})
 
         var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.msRTCPeerConnection;
         var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.msRTCSessionDescription;
