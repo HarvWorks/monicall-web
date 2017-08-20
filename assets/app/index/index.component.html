@@ -1,12 +1,31 @@
 <div class="container">
-    <div class="row">
-        <div class="column">
-            <h1>Monicall</h1>
-            <video id="selfView" autoplay></video>
-            <canvas id="selfViewCanvas"></canvas>
-            <div id="remoteViewContainer"></div>
-            <div id="results" style="word-wrap:break-word;"></div>
-            <div id="logs"></div>
+    <canvas id="selfViewCanvas"></canvas>
+    <div id="remoteViewContainer">
+        <form>
+            <div class="remoteViewContainerSpacer">
+            </div>
+            <div class="grid-x" id="remoteViewText">
+                <div class="small-4 cell">
+                </div>
+                <div class="small-4 cell">
+                    <label>
+                        Please enter your name:
+                        <input type="text" name="name" value="" id="username-input" placeholder="Name">
+                    </label>
+                    <button type="button" name="username-button" id="username-submit" onclick="press();" class="button primary">Submit Name</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="selfViewContainer">
+        <video id="selfView" autoplay></video>
+        <div class="logos">
+            <div class="powered-by">
+                Powered By
+            </div>
+            <img src="/img/icon.png" alt="icon" class="logo">
         </div>
     </div>
+    <div id="results" style="word-wrap:break-word;"></div>
+    <div id="logs"></div>
 </div>

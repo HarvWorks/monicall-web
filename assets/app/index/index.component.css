@@ -1,0 +1,29 @@
+.selfViewContainer {
+    position: relative;
+    height: 20vh;
+}
+.logos {
+    height: 19vh;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+.powered-by {
+    display: inline-block;
+}
+.logo {
+    height: 18vh;
+    padding: 1vw;
+    width: 18vh;
+}
+.remoteViewContainerSpacer {
+    height: 30vh;
+}
+#remoteViewContainer {
+    height: 80vh;
+    width: 100vw;
+    position: relative;
+}
+#username-submit {
+
+}

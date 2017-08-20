@@ -27,6 +27,7 @@
 
     <!-- used for foundation -->
     <link rel="stylesheet" href="./css/foundation.css">
+    <link rel="stylesheet" href="./css/app.css">
 
     <!-- The angular script for running the entire site -->
     <script src="/js/app/bundle.js"></script>
@@ -51,6 +52,8 @@
         var localStream;
 
         var currentVideo = document.getElementById('selfView');
+
+        var globalRoomID = "RoninDevSquad"
 
         //tells the processing looping function to start
         var startProcessing = false;
@@ -95,6 +98,12 @@
             log('#results', "Timestamp: " + timestamp.toFixed(2));
             log('#results', "Number of faces found: " + faces.length);
             if (faces.length > 0) {
+                for (var key in pcPeers) {
+                  var pc = pcPeers[key];
+                  if (pc.textDataChannel) {
+                      pc.textDataChannel.send(faces);
+                  }
+                }
                 log('#results', "Appearance: " + JSON.stringify(faces[0].appearance));
                 log('#results', "Emotions: " + JSON.stringify(faces[0].emotions, function(key, val) {
                     return val.toFixed ? Number(val.toFixed(0)) : val;
@@ -105,6 +114,18 @@
                 log('#results', "Emoji: " + faces[0].emojis.dominantEmoji);
             }
         });
+
+        socket.on('faces', function(faceData){
+            log('#results', "dasfdsfdsfdsfdsfsdfdasf ");
+            log('#results', "Appearance: " + JSON.stringify(faces[0].appearance));
+            log('#results', "Emotions: " + JSON.stringify(faces[0].emotions, function(key, val) {
+                return val.toFixed ? Number(val.toFixed(0)) : val;
+            }));
+            log('#results', "Expressions: " + JSON.stringify(faces[0].expressions, function(key, val) {
+                return val.toFixed ? Number(val.toFixed(0)) : val;
+            }));
+            log('#results', "Emoji: " + faces[0].emojis.dominantEmoji);
+        })
 
         /*
           onImageResults failure receives 3 parameters:
@@ -132,9 +153,9 @@
         }
 
         function join(roomID) {
-            console.log('roomID', roomID);
+            // console.log('roomID', roomID);
           socket.emit('join', roomID, function(socketIds){
-            console.log('join', socketIds);
+            // console.log('join', socketIds);
             for (var i in socketIds) {
               var socketId = socketIds[i];
               createPC(socketId, true);
@@ -147,7 +168,7 @@
           pcPeers[socketId] = pc;
 
           pc.onicecandidate = function (event) {
-            console.log('onicecandidate', event);
+            // console.log('onicecandidate', event);
             if (event.candidate) {
               socket.emit('exchange', {'to': socketId, 'candidate': event.candidate });
             }
@@ -155,35 +176,42 @@
 
           function createOffer() {
             pc.createOffer(function(desc) {
-              console.log('createOffer', desc);
+            //   console.log('createOffer', desc);
               pc.setLocalDescription(desc, function () {
-                console.log('setLocalDescription', pc.localDescription);
+                // console.log('setLocalDescription', pc.localDescription);
                 socket.emit('exchange', {'to': socketId, 'sdp': pc.localDescription });
               }, logError);
             }, logError);
           }
 
           pc.onnegotiationneeded = function () {
-            console.log('onnegotiationneeded');
+            // console.log('onnegotiationneeded');
             if (isOffer) {
               createOffer();
             }
           }
 
           pc.oniceconnectionstatechange = function(event) {
-            console.log('oniceconnectionstatechange', event);
+            // console.log('oniceconnectionstatechange', event);
             if (event.target.iceConnectionState === 'connected') {
               createDataChannel();
             }
           };
           pc.onsignalingstatechange = function(event) {
-            console.log('onsignalingstatechange', event);
+            // console.log('onsignalingstatechange', event);
           };
 
           pc.onaddstream = function (event) {
-            console.log('onaddstream', event);
+            // console.log('onaddstream', event);
+            remoteViewContainer.innerHTML = ""
             var element = document.createElement('video');
             element.id = "remoteView" + socketId;
+            element.style.height = '79vh';
+            element.style.width = '100vw';
+            element.style.width = '100vw';
+            element.style.position = 'absolute';
+            element.style.top = '0';
+            element.style.left = '0';
             element.autoplay = 'autoplay';
             element.src = URL.createObjectURL(event.stream);
             remoteViewContainer.appendChild(element);
@@ -201,14 +229,12 @@
 
             dataChannel.onmessage = function (event) {
               console.log("dataChannel.onmessage:", event.data);
-              var content = document.getElementById('textRoomContent');
-              content.innerHTML = content.innerHTML + '<p>' + socketId + ': ' + event.data + '</p>';
+            //   var content = document.getElementById('textRoomContent');
+            //   content.innerHTML = content.innerHTML + '<p>' + socketId + ': ' + event.data + '</p>';
             };
 
             dataChannel.onopen = function () {
               console.log('dataChannel.onopen');
-              var textRoom = document.getElementById('textRoom');
-              textRoom.style.display = "block";
             };
 
             dataChannel.onclose = function () {
@@ -271,17 +297,37 @@
         function logError(error) {
           console.log("logError", error);
         }
-        join("RoninDevSquad");
+        function press() {
+            console.log("press!!!");
+            var roomID = document.getElementById('username-input').value;
+            if (roomID == "") {
+                alert('Please enter room ID');
+            } else {
+            var roomIDContainer = document.getElementById('remoteViewText');
+                roomIDContainer.innerHTML = "<div class='small-12 cell'><h3>Welcome " + roomID + ", please wait for Monica</h3></div></div>"
+                join(roomID);
+            }
+        }
+        // join("RoninDevSquad");
         currentVideo.addEventListener('loadedmetadata', addVideoCanvas("selfView"));
 
         function addVideoCanvas(videoName) {
             var canvas = document.getElementById(videoName + 'Canvas');
             var ctx = canvas.getContext('2d');
             var tempVideo = document.getElementById(videoName);
-            
+
+            tempVideo.style.paddingTop = '1vh';
+            tempVideo.style.height = '20vh';
+            tempVideo.style.width = '100vw';
+            canvas.style.position = 'absolute';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+            canvas.style.zIndex = '-100';
+            canvas.style.opacity = '0';
+
             (function loop() {
                 canvas.width = 400;
-                canvas.height = tempVideo.videoHeight/tempVideo.videoWidth * 400;
+                canvas.height = tempVideo.videoHeight/tempVideo.videoWidth * canvas.width;
                 var hRatio = (tempVideo.videoWidth>canvas.width)?(canvas.width/tempVideo.videoWidth)*tempVideo.videoHeight:(canvas.width/tempVideo.videoWidth)*tempVideo.videoHeight;
                 ctx.drawImage(tempVideo, 0,0, canvas.width, hRatio);
                 setTimeout(loop, 1000 / 30); // drawing at 30fps
@@ -308,7 +354,6 @@
                 setTimeout(processFrame, 1000/5); // drawing at 5fps
             }
         }
-
         detector.start();
 
     </script>
