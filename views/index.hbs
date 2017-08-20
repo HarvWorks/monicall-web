@@ -39,6 +39,7 @@
     <script src="/socket.io/socket.io.js"></script>
     <script type="text/javascript">
         const socket = io.connect('https://react-native-webrtc.herokuapp.com', {transports: ['websocket']});
+        const textSocket = io.connect('https://anvyl.online')
 
         var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.msRTCPeerConnection;
         var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.msRTCSessionDescription;
@@ -56,7 +57,7 @@
         var globalRoomID = "RoninDevSquad"
 
         //tells the processing looping function to start
-        var startProcessing = false;
+        var processingData;
 
         //Face detector configuration
         var faceMode = affdex.FaceDetectorMode.LARGE_FACES;
@@ -73,12 +74,11 @@
         //Add a callback to notify when the detector is initialized and ready for runing.
         detector.addEventListener("onInitializeSuccess", function() {
             log('#logs', "The detector reports initialized");
-            startProcessing = true
-            setTimeout(processFrame, 3000)
+            processingData = setInterval(processFrame,1000/8)
         });
 
         function log(node_name, msg) {
-        $(node_name).append("<span>" + msg + "</span><br />")
+        $(node_name).append("<span>" + msg + "</span><br/>")
         }
 
         detector.addEventListener("onInitializeFailure", function() {
@@ -94,26 +94,14 @@
           - timestamp: The timestamp of the captured image in seconds.
         */
         detector.addEventListener("onImageResultsSuccess", function(faces, image, timestamp) {
-            $('#results').html("");
-            log('#results', "Timestamp: " + timestamp.toFixed(2));
-            log('#results', "Number of faces found: " + faces.length);
             if (faces.length > 0) {
-                for (var key in pcPeers) {
-                  var pc = pcPeers[key];
-                  if (pc.textDataChannel) {
-                      pc.textDataChannel.send(faces);
-                  }
-                }
-                log('#results', "Appearance: " + JSON.stringify(faces[0].appearance));
-                log('#results', "Emotions: " + JSON.stringify(faces[0].emotions, function(key, val) {
-                    return val.toFixed ? Number(val.toFixed(0)) : val;
-                }));
-                log('#results', "Expressions: " + JSON.stringify(faces[0].expressions, function(key, val) {
-                    return val.toFixed ? Number(val.toFixed(0)) : val;
-                }));
-                log('#results', "Emoji: " + faces[0].emojis.dominantEmoji);
+                textSocket.emit('faces', faces)
             }
         });
+
+        textSocket.on('faces', function(faceData){
+            console.log('Works',faceData)
+        })
 
         socket.on('faces', function(faceData){
             log('#results', "dasfdsfdsfdsfdsfsdfdasf ");
@@ -160,6 +148,7 @@
               var socketId = socketIds[i];
               createPC(socketId, true);
             }
+            textSocket.emit('join', roomID)
           });
         }
 
@@ -325,13 +314,12 @@
             canvas.style.zIndex = '-100';
             canvas.style.opacity = '0';
 
-            (function loop() {
+            setInterval(function loop() {
                 canvas.width = 400;
                 canvas.height = tempVideo.videoHeight/tempVideo.videoWidth * canvas.width;
                 var hRatio = (tempVideo.videoWidth>canvas.width)?(canvas.width/tempVideo.videoWidth)*tempVideo.videoHeight:(canvas.width/tempVideo.videoWidth)*tempVideo.videoHeight;
                 ctx.drawImage(tempVideo, 0,0, canvas.width, hRatio);
-                setTimeout(loop, 1000 / 30); // drawing at 30fps
-            })();
+            }, 1000 / 30 ); // drawing at 30fps
         }
 
         //Get a canvas element from DOM
@@ -343,16 +331,13 @@
 
         //Process the frame
         function processFrame() {
-            if (startProcessing) {
-                //Get imageData object.
-                var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                //Get current time in seconds
-                var now = (new Date()).getTime() / 1000;
-                //Get delta time between the first frame and the current frame.
-                var deltaTime = now - startTimestamp;
-                detector.process(imageData, deltaTime);
-                setTimeout(processFrame, 1000/5); // drawing at 5fps
-            }
+            //Get imageData object.
+            var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            //Get current time in seconds
+            var now = (new Date()).getTime() / 1000;
+            //Get delta time between the first frame and the current frame.
+            var deltaTime = now - startTimestamp;
+            detector.process(imageData, deltaTime);
         }
         detector.start();
 
