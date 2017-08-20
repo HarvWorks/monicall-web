@@ -33,6 +33,287 @@
     <script src="/js/vendor/jquery.js"></script>
     <script src="/js/vendor/what-input.js"></script>
     <script src="/js/vendor/foundation.min.js"></script>
+    <script src="https://download.affectiva.com/js/3.2/affdex.js"/></script>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+        const socket = io.connect('https://react-native-webrtc.herokuapp.com', {transports: ['websocket']});
+
+        var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.msRTCPeerConnection;
+        var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.msRTCSessionDescription;
+        navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia;
+
+        var configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
+
+        var pcPeers = {};
+        var selfView = document.getElementById("selfView");
+        var remoteViewContainer = document.getElementById("remoteViewContainer");
+        var localStream;
+
+        var currentVideo = document.getElementById('selfView');
+
+        //tells the processing looping function to start
+        var startProcessing = false;
+
+        //Face detector configuration
+        var faceMode = affdex.FaceDetectorMode.LARGE_FACES;
+
+        //Construct a FrameDetector and specify the image width / height and face detector mode.
+        var detector = new affdex.FrameDetector(faceMode);
+
+        //Enable detection of all Expressions, Emotions and Emojis classifiers.
+        detector.detectAllEmotions();
+        detector.detectAllExpressions();
+        detector.detectAllEmojis();
+        detector.detectAllAppearance();
+
+        //Add a callback to notify when the detector is initialized and ready for runing.
+        detector.addEventListener("onInitializeSuccess", function() {
+            log('#logs', "The detector reports initialized");
+            startProcessing = true
+            setTimeout(processFrame, 3000)
+        });
+
+        function log(node_name, msg) {
+        $(node_name).append("<span>" + msg + "</span><br />")
+        }
+
+        detector.addEventListener("onInitializeFailure", function() {
+           console.log("Failed to initialize");
+        });
+
+        /*
+          onImageResults success is called when a frame is processed successfully and receives 3 parameters:
+          - Faces: Dictionary of faces in the frame keyed by the face id.
+                   For each face id, the values of detected emotions, expressions, appearane metrics
+                   and coordinates of the feature points
+          - image: An imageData object containing the pixel values for the processed frame.
+          - timestamp: The timestamp of the captured image in seconds.
+        */
+        detector.addEventListener("onImageResultsSuccess", function(faces, image, timestamp) {
+            $('#results').html("");
+            log('#results', "Timestamp: " + timestamp.toFixed(2));
+            log('#results', "Number of faces found: " + faces.length);
+            if (faces.length > 0) {
+                log('#results', "Appearance: " + JSON.stringify(faces[0].appearance));
+                log('#results', "Emotions: " + JSON.stringify(faces[0].emotions, function(key, val) {
+                    return val.toFixed ? Number(val.toFixed(0)) : val;
+                }));
+                log('#results', "Expressions: " + JSON.stringify(faces[0].expressions, function(key, val) {
+                    return val.toFixed ? Number(val.toFixed(0)) : val;
+                }));
+                log('#results', "Emoji: " + faces[0].emojis.dominantEmoji);
+            }
+        });
+
+        /*
+          onImageResults failure receives 3 parameters:
+          - image: An imageData object containing the pixel values for the processed frame.
+          - timestamp: An imageData object contain the pixel values for the processed frame.
+          - err_detail: A string contains the encountered exception.
+        */
+        detector.addEventListener("onImageResultsFailure", function (image, timestamp, err_detail) {
+            console.log(err_detail)
+        });
+
+        //Face detector reset
+        detector.addEventListener("onResetSuccess", function() {});
+        detector.addEventListener("onResetFailure", function() {});
+
+        //Face detector stop
+        detector.addEventListener("onStopSuccess", function() {});
+        detector.addEventListener("onStopFailure", function() {});
+
+        function getLocalStream() {
+          navigator.getUserMedia({ "audio": true, "video": true }, function (stream) {
+            localStream = stream;
+            selfView.src = URL.createObjectURL(stream);
+          }, logError);
+        }
+
+        function join(roomID) {
+            console.log('roomID', roomID);
+          socket.emit('join', roomID, function(socketIds){
+            console.log('join', socketIds);
+            for (var i in socketIds) {
+              var socketId = socketIds[i];
+              createPC(socketId, true);
+            }
+          });
+        }
+
+        function createPC(socketId, isOffer) {
+          var pc = new RTCPeerConnection(configuration);
+          pcPeers[socketId] = pc;
+
+          pc.onicecandidate = function (event) {
+            console.log('onicecandidate', event);
+            if (event.candidate) {
+              socket.emit('exchange', {'to': socketId, 'candidate': event.candidate });
+            }
+          };
+
+          function createOffer() {
+            pc.createOffer(function(desc) {
+              console.log('createOffer', desc);
+              pc.setLocalDescription(desc, function () {
+                console.log('setLocalDescription', pc.localDescription);
+                socket.emit('exchange', {'to': socketId, 'sdp': pc.localDescription });
+              }, logError);
+            }, logError);
+          }
+
+          pc.onnegotiationneeded = function () {
+            console.log('onnegotiationneeded');
+            if (isOffer) {
+              createOffer();
+            }
+          }
+
+          pc.oniceconnectionstatechange = function(event) {
+            console.log('oniceconnectionstatechange', event);
+            if (event.target.iceConnectionState === 'connected') {
+              createDataChannel();
+            }
+          };
+          pc.onsignalingstatechange = function(event) {
+            console.log('onsignalingstatechange', event);
+          };
+
+          pc.onaddstream = function (event) {
+            console.log('onaddstream', event);
+            var element = document.createElement('video');
+            element.id = "remoteView" + socketId;
+            element.autoplay = 'autoplay';
+            element.src = URL.createObjectURL(event.stream);
+            remoteViewContainer.appendChild(element);
+          };
+          pc.addStream(localStream);
+          function createDataChannel() {
+            if (pc.textDataChannel) {
+              return;
+            }
+            var dataChannel = pc.createDataChannel("text");
+
+            dataChannel.onerror = function (error) {
+              console.log("dataChannel.onerror", error);
+            };
+
+            dataChannel.onmessage = function (event) {
+              console.log("dataChannel.onmessage:", event.data);
+              var content = document.getElementById('textRoomContent');
+              content.innerHTML = content.innerHTML + '<p>' + socketId + ': ' + event.data + '</p>';
+            };
+
+            dataChannel.onopen = function () {
+              console.log('dataChannel.onopen');
+              var textRoom = document.getElementById('textRoom');
+              textRoom.style.display = "block";
+            };
+
+            dataChannel.onclose = function () {
+              console.log("dataChannel.onclose");
+            };
+
+            pc.textDataChannel = dataChannel;
+          }
+          return pc;
+        }
+
+        function exchange(data) {
+          var fromId = data.from;
+          var pc;
+          if (fromId in pcPeers) {
+            pc = pcPeers[fromId];
+          } else {
+            pc = createPC(fromId, false);
+          }
+
+          if (data.sdp) {
+            console.log('exchange sdp', data);
+            pc.setRemoteDescription(new RTCSessionDescription(data.sdp), function () {
+              if (pc.remoteDescription.type == "offer")
+                pc.createAnswer(function(desc) {
+                  console.log('createAnswer', desc);
+                  pc.setLocalDescription(desc, function () {
+                    console.log('setLocalDescription', pc.localDescription);
+                    socket.emit('exchange', {'to': fromId, 'sdp': pc.localDescription });
+                  }, logError);
+                }, logError);
+            }, logError);
+          } else {
+            console.log('exchange candidate', data);
+            pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+          }
+        }
+
+        function leave(socketId) {
+          console.log('leave', socketId);
+          var pc = pcPeers[socketId];
+          pc.close();
+          delete pcPeers[socketId];
+          var video = document.getElementById("remoteView" + socketId);
+          if (video) video.remove();
+        }
+
+        socket.on('exchange', function(data){
+          exchange(data);
+        });
+        socket.on('leave', function(socketId){
+          leave(socketId);
+        });
+
+        socket.on('connect', function(data) {
+          console.log('connect');
+          getLocalStream();
+        });
+
+        function logError(error) {
+          console.log("logError", error);
+        }
+        join("RoninDevSquad");
+        currentVideo.addEventListener('loadedmetadata', addVideoCanvas("selfView"));
+
+        function addVideoCanvas(videoName) {
+            var canvas = document.getElementById(videoName + 'Canvas');
+            var ctx = canvas.getContext('2d');
+            var tempVideo = document.getElementById(videoName);
+            
+            (function loop() {
+                canvas.width = 400;
+                canvas.height = tempVideo.videoHeight/tempVideo.videoWidth * 400;
+                var hRatio = (tempVideo.videoWidth>canvas.width)?(canvas.width/tempVideo.videoWidth)*tempVideo.videoHeight:(canvas.width/tempVideo.videoWidth)*tempVideo.videoHeight;
+                ctx.drawImage(tempVideo, 0,0, canvas.width, hRatio);
+                setTimeout(loop, 1000 / 30); // drawing at 30fps
+            })();
+        }
+
+        //Get a canvas element from DOM
+        var canvas = document.getElementById("selfViewCanvas");
+        var context = canvas.getContext('2d');
+
+        //Cache the timestamp of the first frame processed
+        var startTimestamp = (new Date()).getTime() / 1000;
+
+        //Process the frame
+        function processFrame() {
+            if (startProcessing) {
+                //Get imageData object.
+                var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                //Get current time in seconds
+                var now = (new Date()).getTime() / 1000;
+                //Get delta time between the first frame and the current frame.
+                var deltaTime = now - startTimestamp;
+                detector.process(imageData, deltaTime);
+                setTimeout(processFrame, 1000/5); // drawing at 5fps
+            }
+        }
+
+        detector.start();
+
+    </script>
+
+    <script src="https://download.affectiva.com/js/3.2/affdex.js"/>
 
 </body>
 </html>
