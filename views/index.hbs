@@ -73,12 +73,11 @@
 
         //Add a callback to notify when the detector is initialized and ready for runing.
         detector.addEventListener("onInitializeSuccess", function() {
-            log('#logs', "The detector reports initialized");
             processingData = setInterval(processFrame,1000/8)
         });
 
         function log(node_name, msg) {
-        $(node_name).append("<span>" + msg + "</span><br/>")
+            $(node_name).append("<span>" + msg + "</span><br/>")
         }
 
         detector.addEventListener("onInitializeFailure", function() {
